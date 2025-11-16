@@ -13,6 +13,7 @@ namespace WinCNT.GraphicsLab
             Diagonal,
             GoldenRatio,
             GoldenSpiral,
+            Cross,
         }
 
         private Dictionary<GameViewCompositionType, GameViewComposition> gameViewCompositions = new();

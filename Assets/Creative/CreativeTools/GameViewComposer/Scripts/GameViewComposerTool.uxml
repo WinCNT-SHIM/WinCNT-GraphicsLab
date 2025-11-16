@@ -1,10 +1,11 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <Style src="project://database/Assets/GameViewComposer/Scripts/GameViewComposerTool.uss?fileID=7433441132597879392&amp;guid=101224d0c608b324cbc4805dd90ecda0&amp;type=3#GameViewComposerTool" />
+    <Style src="project://database/Assets/Creative/CreativeTools/GameViewComposer/Scripts/GameViewComposerTool.uss?fileID=7433441132597879392&amp;guid=101224d0c608b324cbc4805dd90ecda0&amp;type=3#GameViewComposerTool" />
     <ui:Label text="Game View Composer" class="custom-label" />
     <ui:VisualElement style="flex-grow: 1;">
         <ui:VisualElement name="Type" style="flex-grow: 1;">
             <ui:Label text="Type" style="-unity-font-style: bold; font-size: 16px;" />
             <ui:Toggle name="RuleOfThirdsToggle" text="Rule Of Thirds" style="flex-shrink: 1; -unity-font-style: bold; font-size: 15px;" />
+            <ui:Toggle name="CrossToggle" text="Cross" style="flex-shrink: 1; -unity-font-style: bold; font-size: 15px;" />
             <ui:Toggle name="DiagonalToggle" text="Diagonal" style="font-size: 15px; -unity-font-style: bold;" />
             <ui:Toggle name="GoldenRatioToggle" text="Golden Ratio" style="font-size: 15px; -unity-font-style: bold;" />
             <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between;">

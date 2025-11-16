@@ -49,12 +49,16 @@ namespace WinCNT.GraphicsLab
             // gameViewComposer = prefabInstantiate?.GetComponent<GameViewComposer>();
 
             var ruleOfThirdsToggle = root.Q<Toggle>("RuleOfThirdsToggle");
+            var crossToggle = root.Q<Toggle>("CrossToggle");
             var diagonalToggle = root.Q<Toggle>("DiagonalToggle");
             var goldenRatioToggle = root.Q<Toggle>("GoldenRatioToggle");
             var goldenSpiralToggle = root.Q<Toggle>("GoldenSpiralToggle");
 
             ruleOfThirdsToggle.RegisterValueChangedCallback(evt =>
                 OnToggleComposition(evt, GameViewCompositionType.RuleOfThirds)
+            );
+            crossToggle.RegisterValueChangedCallback(evt =>
+                OnToggleComposition(evt, GameViewCompositionType.Cross)
             );
             diagonalToggle.RegisterValueChangedCallback(evt =>
                 OnToggleComposition(evt, GameViewCompositionType.Diagonal)
