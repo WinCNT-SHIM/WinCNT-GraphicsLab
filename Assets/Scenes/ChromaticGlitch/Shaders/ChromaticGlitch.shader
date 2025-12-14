@@ -1,4 +1,4 @@
-Shader "ChromaticGlitch"
+Shader "WinCNT/ChromaticGlitch"
 {
     Properties
     {
