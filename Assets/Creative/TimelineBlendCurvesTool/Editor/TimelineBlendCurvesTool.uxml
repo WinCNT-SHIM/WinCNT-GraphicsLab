@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/Creative/TimelineBlendCurvesTool/Editor/TimelineBlendCurvesTool.uss?fileID=7433441132597879392&amp;guid=514f44fc428388044a940568745a139a&amp;type=3#TimelineBlendCurvesTool" />
+    <ui:VisualElement style="flex-grow: 1;">
+        <ui:Label tabindex="-1" text="Timeline Clip" parse-escape-sequences="true" display-tooltip-when-elided="true" class="custom-headline1" />
+        <ui:TextField picking-mode="Ignore" readonly="true" name="SelectedClipTextField" label="Selected Clip&#x9;" style="-unity-font-style: bold;" />
+        <ui:VisualElement name="Split" class="split" style="flex-grow: 1;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="CaptureSettings" style="flex-grow: 1; padding-bottom: 10px;">
+        <ui:Label tabindex="-1" text="Capture Settings" parse-escape-sequences="true" display-tooltip-when-elided="true" class="custom-headline1" />
+        <ui:RadioButtonGroup label="Capture Target" value="-1" choices="Blend Curve In,Blend Curve Out" name="CaptureTargetRadioButtonGroup" style="-unity-font-style: bold; font-size: 15px;" />
+        <ui:Button text="Capture" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CaptureButton" style="height: 30px; font-size: 16px; -unity-font-style: bold;" />
+        <ui:VisualElement name="Split" class="split" style="flex-grow: 1;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="CurveEdit" style="flex-grow: 1; padding-bottom: 10px;">
+        <ui:Label tabindex="-1" text="Curve Edit" parse-escape-sequences="true" display-tooltip-when-elided="true" class="custom-headline1" />
+        <ui:VisualElement name="Space" style="flex-grow: 1; padding-top: 2px; padding-bottom: 2px;" />
+        <uie:CurveField name="CapturedCurveField" style="width: 200px; height: 100px; align-self: center;" />
+        <ui:VisualElement name="Split" class="split" style="flex-grow: 1;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="PasteSettings" style="flex-grow: 1;">
+        <ui:Label tabindex="-1" text="Paste Settings" parse-escape-sequences="true" display-tooltip-when-elided="true" class="custom-headline1" />
+        <ui:TextField picking-mode="Ignore" readonly="true" name="ClipToPasteTextField" label="Selected Clip&#x9;" style="-unity-font-style: bold;" />
+        <ui:RadioButtonGroup label="Paste Target" value="-1" choices="Blend Curve In,Blend Curve Out" name="PasteTargetRadioButtonGroup" style="-unity-font-style: bold; font-size: 15px;" />
+        <ui:Button text="Paste" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PasteButton" style="-unity-font-style: bold; font-size: 16px; height: 30px;" />
+    </ui:VisualElement>
+</ui:UXML>
