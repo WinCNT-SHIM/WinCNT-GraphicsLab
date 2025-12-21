@@ -27,12 +27,14 @@ namespace WinCNT.GraphicsLab
         [SerializeField] private StyleSheet styleSheet;
 
         // UI Toolkit
+        private Button resetButton;
+        private VisualElement captureSettings;
         private VisualElement curveEdit;
         private VisualElement pasteSettings;
         private TextField selectedClipTextField;
         private RadioButtonGroup captureTargetRadioButtonGroup;
         private Button captureButton;
-        private CurveField workCurveField;
+        private CurveField workingCurveField;
         private TextField clipToPasteTextField;
         private RadioButtonGroup pasteTargetRadioButtonGroup;
         private Button pasteButton;
@@ -40,7 +42,6 @@ namespace WinCNT.GraphicsLab
         // ツール用
         private bool isCaptured = false;
         private string selectedClipNameToCapture = "";
-        private AnimationCurve workCurve;
         private string selectedClipNameToPaste = "";
         private BlendCurveSlot captureTargetBlendCurveSlot = BlendCurveSlot.MixInCurve;
         private BlendCurveSlot pasteTargetBlendCurveSlot = BlendCurveSlot.MixInCurve;
@@ -69,12 +70,14 @@ namespace WinCNT.GraphicsLab
         private void InitializeTool(VisualElement root)
         {
             // UIバインド
+            resetButton = root.Q<Button>("ResetButton");
+            captureSettings = root.Q<VisualElement>("CaptureSettings");
             curveEdit = root.Q<VisualElement>("CurveEdit");
             pasteSettings = root.Q<VisualElement>("PasteSettings");
             selectedClipTextField = root.Q<TextField>("SelectedClipTextField");
             captureTargetRadioButtonGroup = root.Q<RadioButtonGroup>("CaptureTargetRadioButtonGroup");
             captureButton = root.Q<Button>("CaptureButton");
-            workCurveField = root.Q<CurveField>("CapturedCurveField");
+            workingCurveField = root.Q<CurveField>("WorkingCurveField");
             clipToPasteTextField = root.Q<TextField>("ClipToPasteTextField");
             pasteTargetRadioButtonGroup = root.Q<RadioButtonGroup>("PasteTargetRadioButtonGroup");
             pasteButton = root.Q<Button>("PasteButton");
@@ -83,8 +86,31 @@ namespace WinCNT.GraphicsLab
             Reset();
 
             // UIに初期値を設定
+            InitializeUI();
+        }
+
+        private void Reset()
+        {
+            if (resetButton != null) resetButton.clicked -= OnClickResetButton;
+            if (captureButton != null) captureButton.clicked -= OnClickCaptureButton;
+            if (pasteButton != null) pasteButton.clicked -= OnClickPasteButton;
+
+            // 変数のリセット
+            isCaptured = false;
+            selectedClipNameToCapture = "";
+            selectedClipNameToPaste = "";
+            captureTargetBlendCurveSlot = BlendCurveSlot.MixInCurve;
+            pasteTargetBlendCurveSlot = BlendCurveSlot.MixInCurve;
+
+            // Curve EditとPaste Settingsを非活性にする
+            SetUIActiveByCapture(isCaptured);
+        }
+
+        private void InitializeUI()
+        {
             SetVisualElementEnabled(selectedClipTextField, false);
             SetVisualElementEnabled(clipToPasteTextField, false);
+            resetButton.clicked += OnClickResetButton;
             selectedClipTextField.SetValueWithoutNotify(selectedClipNameToCapture);
             captureTargetRadioButtonGroup.SetValueWithoutNotify((int)pasteTargetBlendCurveSlot);
             captureTargetRadioButtonGroup.RegisterValueChangedCallback(e => OnChangeTargetRadioButton(
@@ -93,7 +119,7 @@ namespace WinCNT.GraphicsLab
                 )
             );
             captureButton.clicked += OnClickCaptureButton;
-            workCurveField.value = null;
+            workingCurveField.value = null;
             clipToPasteTextField.SetValueWithoutNotify(selectedClipNameToCapture);
             pasteTargetRadioButtonGroup.SetValueWithoutNotify((int)pasteTargetBlendCurveSlot);
             pasteTargetRadioButtonGroup.RegisterValueChangedCallback(e => OnChangeTargetRadioButton(
@@ -104,25 +130,16 @@ namespace WinCNT.GraphicsLab
             pasteButton.clicked += OnClickPasteButton;
         }
 
-        private void Reset()
-        {
-            if (captureButton != null) captureButton.clicked -= OnClickCaptureButton;
-            if (pasteButton != null) pasteButton.clicked -= OnClickPasteButton;
-
-            // 変数のリセット
-            isCaptured = false;
-            selectedClipNameToCapture = "";
-            workCurve = null;
-            selectedClipNameToPaste = "";
-            captureTargetBlendCurveSlot = BlendCurveSlot.MixInCurve;
-            pasteTargetBlendCurveSlot = BlendCurveSlot.MixInCurve;
-
-            // Curve EditとPaste Settingsを非活性にする
-            SetUIActiveByCapture(isCaptured);
-        }
-
         void OnChangeTargetRadioButton(BlendCurveSlot selectedBlendCurveSlot, out BlendCurveSlot targetBlendCurveSlot)
             => targetBlendCurveSlot = selectedBlendCurveSlot;
+
+        private void OnClickResetButton()
+        {
+            // リセット
+            Reset();
+            // UIに初期値を設定
+            InitializeUI();
+        }
 
         private void OnClickCaptureButton()
         {
@@ -136,13 +153,13 @@ namespace WinCNT.GraphicsLab
             // 初期化
             SetVisualElementEnabled(selectedClipTextField, false);
             SetVisualElementEnabled(clipToPasteTextField, false);
-            workCurveField.value = null;
+            workingCurveField.value = null;
 
             // 選択しているクリック名を表示
             SetClipName(selectedClipTextField, selectedClip.displayName);
 
-            // カーブを表示
-            workCurve = GetClipBlendCurve(workCurveField, selectedClip, captureTargetBlendCurveSlot);
+            // CurveFieldにカーブを表示
+            SetClipBlendCurveField(workingCurveField, selectedClip, captureTargetBlendCurveSlot);
 
             // Captureフラグ
             isCaptured = true;
@@ -159,11 +176,11 @@ namespace WinCNT.GraphicsLab
             SetClipName(clipToPasteTextField, selectedClip.displayName);
 
             // Paste
-            SetClipBlendCurve(workCurveField, ref selectedClip, pasteTargetBlendCurveSlot);
+            PasteClipBlendCurve(workingCurveField, ref selectedClip, pasteTargetBlendCurveSlot);
 
-            // 近接のクリップ
+            // ブランディングしているカーブがあれば、Manual -> Autoにする
             var clipDir = pasteTargetBlendCurveSlot == BlendCurveSlot.MixInCurve ? ClipDirection.Prev : ClipDirection.Next;
-            var adjacentClip = FindAdjacentClipOnTrack(selectedClip, clipDir);
+            var adjacentClip = FindClipByBlendingCurve(selectedClip, clipDir);
             if (adjacentClip == null) return;
 
             if (pasteTargetBlendCurveSlot == BlendCurveSlot.MixInCurve)
@@ -196,32 +213,32 @@ namespace WinCNT.GraphicsLab
             if (textField != null) textField.value = clipName;
         }
 
-        private AnimationCurve GetClipBlendCurve(CurveField curveField, TimelineClip clip, BlendCurveSlot blendCurveSlot)
+        private void SetClipBlendCurveField(CurveField curveField, TimelineClip clip, BlendCurveSlot blendCurveSlot)
         {
-            if (clip == null) return null;
-
-            AnimationCurve result = null;
+            if (clip == null) return;
             if (blendCurveSlot == BlendCurveSlot.MixInCurve)
-                result = clip.mixInCurve != null ? new AnimationCurve(clip.mixInCurve.keys) : null;
+                curveField.value = clip.mixInCurve != null ? new AnimationCurve(clip.mixInCurve.keys) : null;
             else
-                result = clip.mixOutCurve != null ? new AnimationCurve(clip.mixOutCurve.keys) : null;
-
-            // CurveFieldに設定
-            curveField.value = result;
-            return result;
+                curveField.value = clip.mixOutCurve != null ? new AnimationCurve(clip.mixOutCurve.keys) : null;
         }
 
-        private void SetClipBlendCurve(CurveField curveField, ref TimelineClip clip, BlendCurveSlot blendCurveSlot)
+        private void PasteClipBlendCurve(CurveField curveField, ref TimelineClip clip, BlendCurveSlot blendCurveSlot)
         {
             if (curveField?.value == null) return;
             if (clip == null) return;
             var track = clip.GetParentTrack();
             if (track == null) return;
 
-            // ターゲットクリップをManualに変更
-            clip.blendInCurveMode = TimelineClip.BlendCurveMode.Manual;
-            TimelineEditor.Refresh(RefreshReason.ContentsModified);
+            var clipAsset = clip.asset as UnityEngine.Object;
+            Undo.IncrementCurrentGroup();
+            int undoGroup = Undo.GetCurrentGroup();
+            Undo.SetCurrentGroupName("Paste Timeline Blend Curve");
 
+            Undo.RegisterCompleteObjectUndo(track, "Paste Timeline Blend Curve");
+            if (clipAsset != null)
+                Undo.RecordObject(clipAsset, "Paste Timeline Blend Curve");
+
+            // Paste
             var curve = curveField.value;
             if (blendCurveSlot == BlendCurveSlot.MixInCurve)
             {
@@ -233,9 +250,11 @@ namespace WinCNT.GraphicsLab
                 clip.blendOutCurveMode = TimelineClip.BlendCurveMode.Manual;
                 clip.mixOutCurve = new AnimationCurve(curve.keys);
             }
-            TimelineEditor.Refresh(RefreshReason.ContentsModified);
 
+            TimelineEditor.Refresh(RefreshReason.ContentsModified);
             EditorUtility.SetDirty(track);
+
+            Undo.CollapseUndoOperations(undoGroup);
         }
 
         /// <summary>
@@ -243,6 +262,9 @@ namespace WinCNT.GraphicsLab
         /// </summary>
         private void SetUIActiveByCapture(bool active)
         {
+            // Capture前
+            SetVisualElementEnabled(captureSettings, !active);
+            // Capture後
             SetVisualElementEnabled(curveEdit, active);
             SetVisualElementEnabled(pasteSettings, active);
         }
@@ -258,10 +280,19 @@ namespace WinCNT.GraphicsLab
             return clips is { Length: > 0 } ? clips[0] : null;
         }
 
-        private static TimelineClip FindAdjacentClipOnTrack(TimelineClip clip, ClipDirection clipDirection)
+        private static TimelineClip FindClipByBlendingCurve(TimelineClip clip, ClipDirection clipDirection)
         {
             var track = clip.GetParentTrack();
             if (track == null) return null;
+
+            if (clipDirection == ClipDirection.Prev)
+            {
+                if (!clip.hasBlendIn || clip.blendInDuration <= 0.0) return null;
+            }
+            else
+            {
+                if (!clip.hasBlendOut || clip.blendOutDuration <= 0.0) return null;
+            }
 
             var clips = track.GetClips().OrderBy(c => c.start).ToArray();
             var clipIndex = Array.IndexOf(clips, clip);
